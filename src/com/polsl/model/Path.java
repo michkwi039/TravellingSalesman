@@ -5,8 +5,8 @@ import java.util.LinkedList;
 
 public class Path implements Comparable<Path> {
     public LinkedList<City> cities;
-    public Integer distance;
-    public Path(LinkedList<City> cities, Integer distance){
+    public Double distance;
+    public Path(LinkedList<City> cities, double distance){
         this.cities=cities;
         this.distance=distance;
     }
@@ -14,6 +14,8 @@ public class Path implements Comparable<Path> {
 
     @Override
     public int compareTo(Path path) {
-        return this.distance-path.distance;
+        if(this.distance-path.distance>0)
+            return 1;
+        else return -1;
     }
 }

@@ -5,15 +5,22 @@ import java.util.ArrayList;
 public class City {
     public String name;
     public ArrayList<DistanceDTO> distances;
+    public Double xLength;
+    public Double yLength;
 
-    public Integer distanceTo(City city){
-        String name=city.name;
+    public Double distanceTo(City city){
+        /*String name=city.name;
 
         for (DistanceDTO i:distances) {
             if(i.name.equals(city.name))
                 return i.distance;
         }
-        return 0;
+        return 0;*/
+
+        Double x=this.xLength-city.xLength;
+        Double y= this.yLength-city.yLength;
+       return Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
+
     }
     public City(String name,ArrayList<DistanceDTO> distances){
         this.name=name;
