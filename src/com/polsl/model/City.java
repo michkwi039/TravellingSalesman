@@ -8,6 +8,13 @@ public class City {
     public Double xLength;
     public Double yLength;
 
+    public City(String name, Double xLength, Double yLength) {
+        this.name = name;
+        this.xLength = xLength;
+        this.yLength = yLength;
+    }
+
+
     public Double distanceTo(City city){
         /*String name=city.name;
 
@@ -28,6 +35,30 @@ public class City {
     }
     public void addDistance(String name,Integer distance){
         distances.add(new DistanceDTO(name,distance));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Double getxLength() {
+        return xLength;
+    }
+
+    public Double getyLength() {
+        return yLength;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setxLength(Double xLength) {
+        this.xLength = xLength;
+    }
+
+    public void setyLength(Double yLength) {
+        this.yLength = yLength;
     }
 
     public class DistanceDTO{
