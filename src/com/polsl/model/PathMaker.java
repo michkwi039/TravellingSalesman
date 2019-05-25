@@ -2,29 +2,30 @@ package com.polsl.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Random;
 
 
 public class PathMaker {
 
-    public LinkedList<Path> CreateFirstGeneration(LinkedList<City> cities)throws CityNotFoundException{
-        City staringCity= cities.remove(0);
+    public CopyOnWriteArrayList<Path> CreateFirstGeneration(CopyOnWriteArrayList<City> cities,City staringCity)throws CityNotFoundException{
+       // City staringCity= cities.remove(0);
 
-        LinkedList<Path> paths=new LinkedList<>();
+        CopyOnWriteArrayList<Path> paths=new CopyOnWriteArrayList<>();
         Random generator =new Random();
         for(int i=0;i<10;i++){
-            LinkedList<City> temporary=new LinkedList<>();
+            CopyOnWriteArrayList<City> temporary=new CopyOnWriteArrayList<>();
             temporary.add(staringCity);
             City currentCity = staringCity;
-            LinkedList<City> citiesLeft = new LinkedList<>(cities);
+            CopyOnWriteArrayList<City> citiesLeft = new CopyOnWriteArrayList<>(cities);
             Integer distanceTravelled=0;
-            while(citiesLeft.size()!=0){
+            while(citiesLeft.size()>0){
                 Integer next = generator.nextInt(citiesLeft.size());
                 City nextCity= citiesLeft.get(next);
                 temporary.add(nextCity);
                 currentCity=nextCity;
-                citiesLeft.remove(next);
+                citiesLeft.remove(nextCity);
+
             }
             temporary.add(staringCity);
             paths.add(createPath(temporary));
@@ -34,7 +35,7 @@ public class PathMaker {
     }
 
 
-    public Path getShortest(LinkedList<Path> paths){
+    public Path getShortest(CopyOnWriteArrayList<Path> paths){
         Path best=paths.get(0);
         for (Path i: paths) {
             if(i.distance<best.distance)
@@ -50,21 +51,25 @@ public class PathMaker {
         while(i.equals(j)){
             j =generator.nextInt(path.cities.size()-2)+1;
         }
-        LinkedList<City> mutated=new LinkedList<>(path.cities);
+        CopyOnWriteArrayList<City> mutated=new CopyOnWriteArrayList<>(path.cities);
         Collections.swap(mutated,i,j);
         return createPath(mutated);
     }
 
     public Path pathCrosser(Path path1,Path path2){
         Integer l =path1.cities.size()/2;
-        LinkedList<City> newCityPath= new LinkedList<>(path1.cities.subList(0,l));
-        newCityPath.forEach(a-> path2.cities.remove(a));
-        newCityPath.addAll(path2.cities);
-        newCityPath.add(newCityPath.get(0));
+        CopyOnWriteArrayList<City> newCityPath= new CopyOnWriteArrayList<>(path1.cities.subList(0,l));
+        CopyOnWriteArrayList<City> cities=new CopyOnWriteArrayList<>(path2.cities);
+        newCityPath.forEach(a-> cities.remove(a));
+        newCityPath.addAll(cities);
         return createPath(newCityPath);
     }
-
-    public Path createPath(LinkedList<City> cities){
+    public Path choosePath(CopyOnWriteArrayList<Path> paths){
+        Random generator =new Random();
+        Integer next = generator.nextInt(paths.size());
+        return paths.get(next);
+    }
+    public Path createPath(CopyOnWriteArrayList<City> cities){
 
         Double distance=0.0;
         for (int i =0 ;i<cities.size()-1;i++) {
@@ -73,8 +78,8 @@ public class PathMaker {
         return new Path(cities,distance);
     }
 
-    public LinkedList<Path> subGeneration(LinkedList<Path> paths,Integer sizeAfter){
+    public CopyOnWriteArrayList<Path> subGeneration(CopyOnWriteArrayList<Path> paths,Integer sizeAfter){
         Collections.sort(paths);
-        return new LinkedList<>(paths.subList(0,sizeAfter));
+        return new CopyOnWriteArrayList<>(paths.subList(0,sizeAfter));
     }
 }

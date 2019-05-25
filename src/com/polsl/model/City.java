@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class City {
     public String name;
-    public ArrayList<DistanceDTO> distances;
+    //public ArrayList<DistanceDTO> distances;
     public Double xLength;
     public Double yLength;
 
@@ -28,14 +28,14 @@ public class City {
         Double y= this.yLength-city.yLength;
        return Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
 
-    }
-    public City(String name,ArrayList<DistanceDTO> distances){
-        this.name=name;
-        this.distances=distances;
-    }
-    public void addDistance(String name,Integer distance){
-        distances.add(new DistanceDTO(name,distance));
-    }
+      }
+//    public City(String name,ArrayList<DistanceDTO> distances){
+//        this.name=name;
+//        this.distances=distances;
+//    }
+//    public void addDistance(String name,Integer distance){
+//        distances.add(new DistanceDTO(name,distance));
+//    }
 
     public String getName() {
         return name;
@@ -61,14 +61,14 @@ public class City {
         this.yLength = yLength;
     }
 
-    public class DistanceDTO{
-        public String name;
-        public Integer distance;
-        DistanceDTO(String name, Integer distance){
-            this.name=name;
-            this.distance=distance;
-        }
-    }
+//    public class DistanceDTO{
+//        public String name;
+//        public Integer distance;
+//        DistanceDTO(String name, Integer distance){
+//            this.name=name;
+//            this.distance=distance;
+//        }
+//    }
 
 
 }

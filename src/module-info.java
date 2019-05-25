@@ -1,6 +1,6 @@
 
 
-/*
+
 module TravelSalesman {
     requires javafx.fxml;
     requires javafx.controls;
@@ -8,4 +8,3 @@ module TravelSalesman {
     opens sample;
 }
 
-*/

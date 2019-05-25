@@ -1,6 +1,9 @@
 package sample;
 
 import com.polsl.model.City;
+import com.polsl.model.CityNotFoundException;
+import com.polsl.model.Path;
+import com.polsl.model.PathMaker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,6 +13,7 @@ import javafx.stage.FileChooser;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Controller implements Initializable {
 
@@ -18,11 +22,13 @@ public class Controller implements Initializable {
     public ComboBox<Integer> mutationComboBox;
     public ComboBox<Integer> crossoverComboBox;
     public ComboBox<Integer> generationComboBox;
+    public Button stepButton;
+    public CheckBox stepCheckBox;
     public TextArea resultTextField;
-
-    public LinkedList<City> cities = new LinkedList<City>();
-
-
+    public PathMaker pathMaker=new PathMaker();
+    public CopyOnWriteArrayList <City> cities=new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList <Path> paths = new CopyOnWriteArrayList<>();
+    private Integer generation;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -82,7 +88,7 @@ public class Controller implements Initializable {
         fillList(cities);
     }
 
-    public void fillList(LinkedList<City> cities) {
+    public void fillList(CopyOnWriteArrayList<City> cities) {
         ObservableList<String> items = FXCollections.observableArrayList();
         for (City city : cities) {
             items.add(city.getName() + "(" + city.getxLength() + " , " + city.getyLength() + ")");
@@ -92,7 +98,7 @@ public class Controller implements Initializable {
 
     public void makeAlgorythm(ActionEvent event) throws IOException {
 
-        Integer generation = (Integer) generationComboBox.getValue();
+        generation = (Integer) generationComboBox.getValue();
         Integer cross = (Integer) crossoverComboBox.getValue();
         Integer mutation = (Integer) mutationComboBox.getValue();
 
@@ -111,23 +117,18 @@ public class Controller implements Initializable {
                     cities.remove(c);
                 }
             }
-/*
-               // TEST CZY DANE SIE POPRAWNIE WYSYLAJA
-
-            for ( City c :cities){
-                System.out.println(c.getName() + c.getxLength() + c.getyLength());
+            try {
+                paths= pathMaker.CreateFirstGeneration(cities, startingCity);
+            }catch (CityNotFoundException ex){
+                System.out.println("aaaaaaaaa");
             }
-            System.out.println("miasto poczatkowe:  " +  startingCity.getName() + startingCity.getxLength() +
-                    startingCity.getyLength());
-            System.out.println(generation + " "+  mutation + "  " + cross );
-*/
-            //  wywolanie algorytmu
-            //  parametry:
-            //   LinkedList<City> cities; <= bez początkowego miasta
-            //   Integer generation, mutation, cross
-            //   City  starting City = > miasto, z którego wychodzimy
+            if(stepCheckBox.isSelected()==false) {
+                doFullCycle();
+            }else{
+                stepButton.setDisable(false);
+                doGeneration();
+            }
 
-            printResult( "tu bedzie wynik ");
 
         } else if (list.isEmpty() == true) {
 
@@ -146,10 +147,62 @@ public class Controller implements Initializable {
             alert.show();
         }
     }
+    public void doFullCycle(){
 
-    public void printResult ( String result )
+        for(int j=0;j<generation;j++) {
+           doGeneration();
+        }
+        printEndResult();
+
+    }
+    public void doStep(ActionEvent event) throws IOException{
+        if(generation>0) {
+            generation--;
+            doGeneration();
+        }else{
+            stepButton.setDisable(true);
+            printEndResult();
+        }
+    }
+    public void doGeneration(){
+        for (int i = 0; i < crossoverComboBox.getValue(); i++) {
+            System.out.println("aaaaaaaaa");
+            Path path1 = pathMaker.choosePath(paths);
+            Path path2 = pathMaker.choosePath(paths);
+            while (path1 == path2) {
+                path2 = pathMaker.choosePath(paths);
+            }
+            paths.add(pathMaker.pathCrosser(path1, path2));
+
+        }
+        for (int i = 0; i < mutationComboBox.getValue(); i++) {
+            System.out.println("aaaaaaaaa");
+            Path path = pathMaker.choosePath(paths);
+            paths.add(pathMaker.pathMutator(path));
+
+        }
+        paths= pathMaker.subGeneration(paths,10);
+        if(stepCheckBox.isSelected()==true){
+            printResult();
+        }
+
+    }
+    public void printResult ()
     {
-        resultTextField.setText(result);
+        StringBuilder stringBuilder=new StringBuilder();
+        for(Path p: paths){
+            stringBuilder.append(p.toString()+"\n");
+        }
+        resultTextField.setText(stringBuilder.toString());
+       // resultTextField.setText(result);
+    }
+    public void printEndResult(){
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append("Wynik: \n");
+        for(Path p: paths){
+            stringBuilder.append(p.toString()+"\n");
+        }
+        resultTextField.setText(stringBuilder.toString());
     }
 }
 
