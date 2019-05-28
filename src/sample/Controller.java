@@ -98,6 +98,7 @@ public class Controller implements Initializable {
 
     public void makeAlgorythm(ActionEvent event) throws IOException {
 
+
         generation = (Integer) generationComboBox.getValue();
         Integer cross = (Integer) crossoverComboBox.getValue();
         Integer mutation = (Integer) mutationComboBox.getValue();
@@ -120,7 +121,7 @@ public class Controller implements Initializable {
             try {
                 paths= pathMaker.CreateFirstGeneration(cities, startingCity);
             }catch (CityNotFoundException ex){
-                System.out.println("aaaaaaaaa");
+                System.out.println("error");
             }
             if(stepCheckBox.isSelected()==false) {
                 doFullCycle();
@@ -128,7 +129,7 @@ public class Controller implements Initializable {
                 stepButton.setDisable(false);
                 doGeneration();
             }
-
+            cities.add(startingCity);
 
         } else if (list.isEmpty() == true) {
 
@@ -166,7 +167,6 @@ public class Controller implements Initializable {
     }
     public void doGeneration(){
         for (int i = 0; i < crossoverComboBox.getValue(); i++) {
-            System.out.println("aaaaaaaaa");
             Path path1 = pathMaker.choosePath(paths);
             Path path2 = pathMaker.choosePath(paths);
             while (path1 == path2) {
@@ -176,7 +176,6 @@ public class Controller implements Initializable {
 
         }
         for (int i = 0; i < mutationComboBox.getValue(); i++) {
-            System.out.println("aaaaaaaaa");
             Path path = pathMaker.choosePath(paths);
             paths.add(pathMaker.pathMutator(path));
 
@@ -198,7 +197,7 @@ public class Controller implements Initializable {
     }
     public void printEndResult(){
         StringBuilder stringBuilder=new StringBuilder();
-        stringBuilder.append("Wynik: \n");
+        stringBuilder.append("Result: \n");
         for(Path p: paths){
             stringBuilder.append(p.toString()+"\n");
         }
