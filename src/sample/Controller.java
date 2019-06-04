@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -25,10 +26,11 @@ public class Controller implements Initializable {
     public Button stepButton;
     public CheckBox stepCheckBox;
     public TextArea resultTextField;
-    public PathMaker pathMaker=new PathMaker();
-    public CopyOnWriteArrayList <City> cities=new CopyOnWriteArrayList<>();
-    public CopyOnWriteArrayList <Path> paths = new CopyOnWriteArrayList<>();
+    public PathMaker pathMaker = new PathMaker();
+    public CopyOnWriteArrayList<City> cities = new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList<Path> paths = new CopyOnWriteArrayList<>();
     private Integer generation;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -42,15 +44,41 @@ public class Controller implements Initializable {
         mutationComboBox.getSelectionModel().selectFirst();
     }
 
+
     public void chooseFile(ActionEvent event) throws IOException {
+
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
-            String path = selectedFile.getAbsolutePath();
-            getData(path);
+            if (cities.isEmpty() == false) {
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Add data or overwrite");
+                alert.setHeaderText("Do you want to add data to the list or overwrite existing data");
+                alert.setContentText("Choose your option.");
+
+                ButtonType buttonTypeOne = new ButtonType("Add");
+                ButtonType buttonTypeTwo = new ButtonType("Overwrite");
+
+                alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == buttonTypeTwo) {
+
+                    listView.getItems().remove(0, listView.getItems().size());
+                    fileChooser.getExtensionFilters().add(extFilter);
+                    listView.getItems().remove(0, listView.getItems().size());
+                    cities.clear();
+                }
+                String path = selectedFile.getAbsolutePath();
+                getData(path);
+            } else {
+                String path = selectedFile.getAbsolutePath();
+                getData(path);
+            }
         } else {
             System.out.println("WRONG FILE! ");
         }
@@ -69,20 +97,28 @@ public class Controller implements Initializable {
             Double x = 0.0;
             Double y = 0.0;
             StringTokenizer tokenizer = new StringTokenizer(st, ";");
-
-            if (tokenizer.hasMoreTokens()) {
-                tmpName = (tokenizer.nextToken());
+            try {
                 if (tokenizer.hasMoreTokens()) {
-                    tmpX = (tokenizer.nextToken());
-                    x = Double.parseDouble(tmpX);
-
+                    tmpName = (tokenizer.nextToken());
                     if (tokenizer.hasMoreTokens()) {
-                        tmpY = (tokenizer.nextToken());
-                        y = Double.parseDouble(tmpY);
+                        tmpX = (tokenizer.nextToken());
+                        x = Double.parseDouble(tmpX);
+
+                        if (tokenizer.hasMoreTokens()) {
+                            tmpY = (tokenizer.nextToken());
+                            y = Double.parseDouble(tmpY);
+                        }
                     }
+                    City city = new City(tmpName, x, y);
+                    cities.add(city);
                 }
-                City city = new City(tmpName, x, y);
-                cities.add(city);
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Wrong data format  ");
+                alert.setHeaderText("Not all data has been correctly read. Please select another data set or correct this one");
+                String s = "Click 'Choose file...' button and select file with data ";
+                alert.setContentText(s);
+                alert.show();
             }
         }
         fillList(cities);
@@ -97,6 +133,7 @@ public class Controller implements Initializable {
     }
 
     public void makeAlgorythm(ActionEvent event) throws IOException {
+
 
         generation = (Integer) generationComboBox.getValue();
         Integer cross = (Integer) crossoverComboBox.getValue();
@@ -118,17 +155,17 @@ public class Controller implements Initializable {
                 }
             }
             try {
-                paths= pathMaker.CreateFirstGeneration(cities, startingCity);
-            }catch (CityNotFoundException ex){
-                System.out.println("aaaaaaaaa");
+                paths = pathMaker.CreateFirstGeneration(cities, startingCity);
+            } catch (CityNotFoundException ex) {
+                System.out.println("error");
             }
-            if(stepCheckBox.isSelected()==false) {
+            if (stepCheckBox.isSelected() == false) {
                 doFullCycle();
-            }else{
+            } else {
                 stepButton.setDisable(false);
                 doGeneration();
             }
-
+            cities.add(startingCity);
 
         } else if (list.isEmpty() == true) {
 
@@ -147,26 +184,28 @@ public class Controller implements Initializable {
             alert.show();
         }
     }
-    public void doFullCycle(){
 
-        for(int j=0;j<generation;j++) {
-           doGeneration();
+    public void doFullCycle() {
+
+        for (int j = 0; j < generation; j++) {
+            doGeneration();
         }
         printEndResult();
 
     }
-    public void doStep(ActionEvent event) throws IOException{
-        if(generation>0) {
+
+    public void doStep(ActionEvent event) throws IOException {
+        if (generation > 0) {
             generation--;
             doGeneration();
-        }else{
+        } else {
             stepButton.setDisable(true);
             printEndResult();
         }
     }
-    public void doGeneration(){
+
+    public void doGeneration() {
         for (int i = 0; i < crossoverComboBox.getValue(); i++) {
-            System.out.println("aaaaaaaaa");
             Path path1 = pathMaker.choosePath(paths);
             Path path2 = pathMaker.choosePath(paths);
             while (path1 == path2) {
@@ -176,39 +215,39 @@ public class Controller implements Initializable {
 
         }
         for (int i = 0; i < mutationComboBox.getValue(); i++) {
-            System.out.println("aaaaaaaaa");
             Path path = pathMaker.choosePath(paths);
             paths.add(pathMaker.pathMutator(path));
 
         }
-        paths= pathMaker.subGeneration(paths,10);
-        if(stepCheckBox.isSelected()==true){
+        paths = pathMaker.subGeneration(paths, 10);
+        if (stepCheckBox.isSelected() == true) {
             printResult();
         }
 
     }
-    public void printResult ()
-    {
-        StringBuilder stringBuilder=new StringBuilder();
-        for(Path p: paths){
-            stringBuilder.append(p.toString()+"\n");
+
+    public void printResult() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Path p : paths) {
+            stringBuilder.append(p.toString() + "\n");
         }
         resultTextField.setText(stringBuilder.toString());
-       // resultTextField.setText(result);
+        // resultTextField.setText(result);
+
     }
-    public void printEndResult(){
-        StringBuilder stringBuilder=new StringBuilder();
-        stringBuilder.append("Wynik: \n");
-        for(Path p: paths){
-            stringBuilder.append(p.toString()+"\n");
+
+    public void printEndResult() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Result: \n");
+        for (Path p : paths) {
+            stringBuilder.append(p.toString() + "\n");
         }
         resultTextField.setText(stringBuilder.toString());
     }
+
+
 }
-
-
-
-
 
 
 

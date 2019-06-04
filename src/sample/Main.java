@@ -17,7 +17,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Traveling Salesman");
-        primaryStage.setScene(new Scene(root, 800, 400));
+        primaryStage.setScene(new Scene(root, 850, 400));
         primaryStage.show();
         /*PathMaker pathMaker=new PathMaker();
         ArrayList<Path> paths = new ArrayList<>();

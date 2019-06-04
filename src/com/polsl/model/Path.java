@@ -26,7 +26,7 @@ public class Path implements Comparable<Path> {
         for (City c: cities) {
             stringBuilder.append(c.name+" ");
         }
-        stringBuilder.append("Dystans:" + distance);
+        stringBuilder.append(" distance: " + distance);
         return stringBuilder.toString();
     }
 }
