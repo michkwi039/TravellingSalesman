@@ -1,7 +1,6 @@
 package sample;
 
 import com.polsl.model.City;
-import com.polsl.model.CityNotFoundException;
 import com.polsl.model.Path;
 import com.polsl.model.PathMaker;
 import javafx.collections.FXCollections;
@@ -37,37 +36,29 @@ public class Controller implements Initializable {
         generationComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         generationComboBox.getSelectionModel().selectFirst();
 
-        crossoverComboBox.getItems().addAll(1, 2, 3, 4, 5);
+        crossoverComboBox.getItems().addAll(0, 1, 2, 3, 4, 5);
         crossoverComboBox.getSelectionModel().selectFirst();
 
-        mutationComboBox.getItems().addAll(1, 2, 3);
+        mutationComboBox.getItems().addAll(0, 1, 2, 3);
         mutationComboBox.getSelectionModel().selectFirst();
     }
 
-
     public void chooseFile(ActionEvent event) throws IOException {
-
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
         fileChooser.getExtensionFilters().add(extFilter);
-
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             if (cities.isEmpty() == false) {
-
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Add data or overwrite");
                 alert.setHeaderText("Do you want to add data to the list or overwrite existing data");
                 alert.setContentText("Choose your option.");
-
                 ButtonType buttonTypeOne = new ButtonType("Add");
                 ButtonType buttonTypeTwo = new ButtonType("Overwrite");
-
                 alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
-
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == buttonTypeTwo) {
-
                     listView.getItems().remove(0, listView.getItems().size());
                     fileChooser.getExtensionFilters().add(extFilter);
                     listView.getItems().remove(0, listView.getItems().size());
@@ -88,9 +79,7 @@ public class Controller implements Initializable {
         File file = new File(path);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st;
-
         while ((st = br.readLine()) != null) {
-
             String tmpName = " ";
             String tmpX = "0";
             String tmpY = "0";
@@ -133,16 +122,12 @@ public class Controller implements Initializable {
     }
 
     public void makeAlgorythm(ActionEvent event) throws IOException {
-
-
         generation = (Integer) generationComboBox.getValue();
         Integer cross = (Integer) crossoverComboBox.getValue();
         Integer mutation = (Integer) mutationComboBox.getValue();
-
         ObservableList<String> list = listView.getItems();
         String selectedItem = listView.getSelectionModel().getSelectedItem();
         City startingCity = new City(" ", 0.0, 0.0);
-
         if (selectedItem != null && list.isEmpty() == false) {
             StringTokenizer st = new StringTokenizer(selectedItem, "(");
             String selectedItemCity = st.nextToken();
@@ -154,21 +139,24 @@ public class Controller implements Initializable {
                     cities.remove(c);
                 }
             }
-            try {
+            if(cities.isEmpty()){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Just one city");
+                alert.setHeaderText("Please select different data set");
+                String s = "Click 'Choose file...' button and select file with data ";
+                alert.setContentText(s);
+                alert.show();
+            }else {
                 paths = pathMaker.CreateFirstGeneration(cities, startingCity);
-            } catch (CityNotFoundException ex) {
-                System.out.println("error");
+                if (stepCheckBox.isSelected() == false) {
+                    doFullCycle();
+                } else {
+                    stepButton.setDisable(false);
+                    doGeneration();
+                }
+                cities.add(startingCity);
             }
-            if (stepCheckBox.isSelected() == false) {
-                doFullCycle();
-            } else {
-                stepButton.setDisable(false);
-                doGeneration();
-            }
-            cities.add(startingCity);
-
         } else if (list.isEmpty() == true) {
-
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Empty data set");
             alert.setHeaderText("Please select data set");
@@ -191,7 +179,6 @@ public class Controller implements Initializable {
             doGeneration();
         }
         printEndResult();
-
     }
 
     public void doStep(ActionEvent event) throws IOException {
@@ -212,18 +199,15 @@ public class Controller implements Initializable {
                 path2 = pathMaker.choosePath(paths);
             }
             paths.add(pathMaker.pathCrosser(path1, path2));
-
         }
         for (int i = 0; i < mutationComboBox.getValue(); i++) {
             Path path = pathMaker.choosePath(paths);
             paths.add(pathMaker.pathMutator(path));
-
         }
         paths = pathMaker.subGeneration(paths, 10);
         if (stepCheckBox.isSelected() == true) {
             printResult();
         }
-
     }
 
     public void printResult() {
@@ -233,7 +217,6 @@ public class Controller implements Initializable {
             stringBuilder.append(p.toString() + "\n");
         }
         resultTextField.setText(stringBuilder.toString());
-        // resultTextField.setText(result);
 
     }
 
@@ -245,8 +228,6 @@ public class Controller implements Initializable {
         }
         resultTextField.setText(stringBuilder.toString());
     }
-
-
 }
 
 
